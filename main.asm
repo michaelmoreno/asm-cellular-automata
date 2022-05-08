@@ -28,15 +28,15 @@ _start:
     ; write neighborhood
     ; write lastrow
     ; write lastrow
-    mov r13, 0 ; number of generations
+    mov r8, 0 ; number of generations
     jmp _generateRows
 
 _generateRows:
-    call _compareRows
+    call _compareGenerations
     ; write nextrow
     call _makeLastRowNextRow
-    inc r13
-    cmp r13, 9 ; number of generations
+    inc r8
+    cmp r8, 9 ; number of generations
     jne _generateRows
     jmp _exit
 
@@ -50,13 +50,13 @@ _makeLastRowNextRow:
     ret
 
 
-_compareRows:
+_compareGenerations:
     mov r11, 0 ; cell index
     ; push r11 ; save cell index
-_compareRowsLoop:
+_compareGenerationsLoop:
     ; write neighborhood
     cmp r11, 13; check if we're at the last cell
-    je _compareRowsLoopEnd
+    je _compareGenerationsLoopEnd
     mov r9b, [lastrow+r11-1] ; get left relative
     mov r12b, [lastrow+r11] ; get center relative
     mov r15b, [lastrow+r11+1] ; get right relative
@@ -67,34 +67,34 @@ _compareRowsLoop:
 
     call _matchRules
     inc r11 ; increment cell index
-    jmp _compareRowsLoop
+    jmp _compareGenerationsLoop
     
-_compareRowsLoopEnd:
+_compareGenerationsLoopEnd:
     ret
 
 _matchRules:
-    mov rdx, 0 ; rules index
-    mov rcx, 0 ; neighborhood index
-    mov r14, 3 ; neighborhood size
+    mov r14, 0 ; rules index
+    mov rdi, 0 ; neighborhood index
+    mov rcx, 3 ; neighborhood size
     xor rax, rax ; reset rax
     xor rbx, rbx ; reset rbx
 _matchRulesLoop:
-    cmp rdx, 8 ; check if we're at the last rule
+    cmp r14, 8 ; check if we're at the last rule
     jge _noRuleMatched ; if we're at the last rule, jump to no match
-    cmp rcx, 3 ; if neighborhood index is 3, all cells passed
+    cmp rdi, 3 ; if neighborhood index is 3, all cells passed
     je _ruleMatched ; if all cells passed, jump to rule matched
-    mov al, byte [neighborhood+rcx] ; get current cell in neighborhood
-    mov bl, [rules+rdx] ; get current cell in rules
-    inc rcx ; increment neighborhood index
-    inc rdx ; increment rules index
+    mov al, byte [neighborhood+rdi] ; get current cell in neighborhood
+    mov bl, [rules+r14] ; get current cell in rules
+    inc rdi ; increment neighborhood index
+    inc r14 ; increment rules index
     cmp al, bl ; compare neighborhood cello with rule cell
     je _matchRulesLoop ; if matched, jump to loop to compare next cells
 
     ; if match fails, skip to next rule and reset neighborhood index
-    sub r14, rcx ; get distance away from next rule
-    add rdx, r14, ; offset rules index by distance
-    mov rcx, 0 ; reset neighborhood index
-    mov r14, 3 ; reset neighborhood size to avoid eventual negative values
+    sub rcx, rdi ; get distance away from next rule
+    add r14, rcx, ; offset rules index by distance
+    mov rdi, 0 ; reset neighborhood index
+    mov rcx, 3 ; reset neighborhood size to avoid eventual negative values
     jmp _matchRulesLoop ; restart loop
 
 _noRuleMatched:
