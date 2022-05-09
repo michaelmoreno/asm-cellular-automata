@@ -10,12 +10,13 @@ section  .data
     nextrow  db '_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_',10,0
     neighborhood db 'h','h','h',0,0
     rules 
-    ; db '_','x','_',
-        ;   db 'x','x','_',
-        ;   db 'x','_','x',
-          db 'x','_','_',
-        ;   db '_','x','x',
-        ;   db '_','_','x',
+        ; db 'x','x','x',
+        ; db 'x','x','_',
+        ; db 'x','_','x',
+        db 'x','_','_',
+        ; db '_','x','x',
+        db '_','x','_',
+        db '_','_','x',
 
 section .bss
     gridsize: resb 16
@@ -24,10 +25,6 @@ section .text
     global _start
 
 _start:
-    ; call _matchRules
-    ; write neighborhood
-    ; write lastrow
-    ; write lastrow
     mov r8, 0 ; number of generations
     jmp _generateRows
 
@@ -41,18 +38,13 @@ _generateRows:
     jmp _exit
 
 _makeLastRowNextRow:
-    ; write lastrow
-    mov rax, [nextrow]
-    mov [lastrow], rax
-    ; xor rax, rax
-    mov rax, [blankrow]
-    mov [nextrow], rax
+    replaceString lastrow, nextrow
+    replaceString nextrow, blankrow
     ret
 
 
 _compareGenerations:
     mov r11, 0 ; cell index
-    ; push r11 ; save cell index
 _compareGenerationsLoop:
     ; write neighborhood
     cmp r11, 13; check if we're at the last cell
@@ -79,7 +71,7 @@ _matchRules:
     xor rax, rax ; reset rax
     xor rbx, rbx ; reset rbx
 _matchRulesLoop:
-    cmp r14, 8 ; check if we're at the last rule
+    cmp r14, 22 ; check if we're at the last rule
     jge _noRuleMatched ; if we're at the last rule, jump to no match
     cmp rdi, 3 ; if neighborhood index is 3, all cells passed
     je _ruleMatched ; if all cells passed, jump to rule matched

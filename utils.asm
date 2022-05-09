@@ -31,6 +31,20 @@
     mov [rdi-1], ah ; set null terminator
 %endmacro
 
+%macro replaceString 2
+    mov rsi, %1 ; address of string to be replaced
+    mov rdi, %2 ; address of string to replace with
+    call _replaceStringLoop
+%endmacro
+_replaceStringLoop:
+    mov byte al, [rdi] ; get char to replace with
+    mov [rsi], byte al ; replace char
+    inc rsi ; set address to next char to replace
+    inc rdi ; set address to next char to replace with
+    cmp byte [rsi], 10 ; check for newline
+    jne _replaceStringLoop ; if not newline, continue
+    ret ; return to caller location
+
 _getLength:
     push rsi ; save buffer address
     mov rdx, 0 ; counter
